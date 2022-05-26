@@ -1,0 +1,44 @@
+{
+	"file" : "dvd.html",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"showtimetocorner" : 
+			{
+				"index" : 1,
+				"order" : 101,
+				"text" : "Show time to corner",
+				"type" : "bool",
+				"value" : true
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0 0 0"
+			},
+			"showdebuginfo" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "Show debug info",
+				"type" : "bool",
+				"value" : true
+			},
+			"showstats" : 
+			{
+				"index" : 0,
+				"order" : 100,
+				"text" : "Show stats",
+				"type" : "bool",
+				"value" : true
+			}
+		}
+	},
+	"preview" : "preview.gif",
+	"title" : "DVD Screensaver (optimized)",
+	"type" : "web",
+	"version" : 0
+}

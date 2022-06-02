@@ -1,0 +1,35 @@
+{
+  "name": "dvd",
+  "version": "1.0.0",
+  "description": "borpaaa",
+  "private": true,
+  "sideEffects": false,
+  "config": {
+    "wpeProjectLocation": "/mnt/e/SteamLibrary/steamapps/common/wallpaper_engine/projects/myprojects/dvd"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "rm": "rm -r $npm_package_config_wpeProjectLocation",
+    "copy": "cp -r ./dist $npm_package_config_wpeProjectLocation",
+    "bc": "npm run build && npm run rm && npm run copy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tylergoodman/dvd.git"
+  },
+  "license": "Public Domain",
+  "bugs": {
+    "url": "https://github.com/tylergoodman/dvd/issues"
+  },
+  "homepage": "https://github.com/tylergoodman/dvd#readme",
+  "devDependencies": {
+    "ts-loader": "^9.3.0",
+    "typescript": "^4.7.2",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "rxjs": "^7.5.5"
+  }
+}

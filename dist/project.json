@@ -1,0 +1,93 @@
+{
+	"file" : "deeveedee.html",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0 0 0"
+			},
+			"showdebuginfo" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "Show debug info",
+				"type" : "bool",
+				"value" : false
+			},
+			"showstats" : 
+			{
+				"index" : 0,
+				"order" : 100,
+				"text" : "Show stats",
+				"type" : "bool",
+				"value" : false
+			},
+			"showtimetocorner" : 
+			{
+				"index" : 1,
+				"order" : 101,
+				"text" : "Show time to corner",
+				"type" : "bool",
+				"value" : false
+			},
+			"colorbehavior" :
+			{
+				"index" : 3,
+				"order" : 103,
+				"text" : "Color behavior",
+				"type" : "combo",
+				"options" :
+				[
+					{
+						"label" : "None",
+						"value" : "none"
+					},
+					{
+						"label" : "Rainbow",
+						"value" : "rainbow"
+					},
+					{
+						"label" : "Classic",
+						"value" : "classic"
+					}
+				],
+				"value" : "rainbow"
+			},
+			"rainbowspeed" :
+			{
+				"condition" : "colorbehavior.value === 'rainbow'",
+				"index" : 4,
+				"order" : 104,
+				"text" : "Color speed",
+				"type" : "textinput",
+				"value" : "0.05"
+			},
+			"nonecolor" :
+			{
+				"condition" : "colorbehavior.value === 'none'",
+				"index" : 5,
+				"order" : 105,
+				"text" : "Color",
+				"type" : "color",
+				"value" : "1 1 1"
+			},
+			"speed" :
+			{
+				"index" : 6,
+				"order" : 106,
+				"text" : "Speed",
+				"type" : "textinput",
+				"value" : "0.25"
+			}
+		}
+	},
+	"preview" : "preview.gif",
+	"title" : "DVD Screensaver (optimized)",
+	"type" : "web",
+	"version" : 0
+}

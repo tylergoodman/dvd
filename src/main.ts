@@ -36,7 +36,7 @@ async function main() {
   const images: BouncingImage[] = [];
   settings.listenToSetting('imageFileName').subscribe(fileName => {
     for (const image of images) {
-      image.setImage(fileName);
+      image.setImage(fileName || DEFAULT_WPE_SETTINGS.imageFileName);
     }
   });
   settings.listenToSetting('objectsCount')

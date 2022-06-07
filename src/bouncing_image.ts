@@ -1,7 +1,7 @@
 import {CanvasObject} from './canvas';
 import {Settings, ColorBehaviorKind} from './settings';
 import {StatCategory, Stats} from './stats';
-import {Color} from './types';
+import {Color, Writeable} from './types';
 import {hslToRgb, lcm, WHITE} from './util';
 
 interface Coord {
@@ -11,13 +11,12 @@ interface Coord {
 
 export class BouncingImage implements CanvasObject {
 
-  private position: Coord = { x: 0, y: 0 };
+  private position: Coord = {x: 0, y: 0};
 
   private direction: -1|1 = 1;
   private totalD = 0;
   private currD = 0;
-  private canvasWidth = 0;
-  private canvasHeight = 0;
+  private canvasDimensions: Coord = {x: 0, y: 0};
 
   private readonly colorBehaviors:
       {[K in ColorBehaviorKind]: ColorBehavior} = {
@@ -27,6 +26,7 @@ export class BouncingImage implements CanvasObject {
       };
 
   private constructor(
+      readonly fileName: string,
       readonly imageData: ImageData,
       readonly settings: Settings,
       private readonly stats: Stats,
@@ -35,6 +35,11 @@ export class BouncingImage implements CanvasObject {
   tick(count: number) {
     const tickStateDelta = this.tickPosition(count);
     this.tickColor(count, tickStateDelta);
+  }
+
+  tickPercent(percent: number) {
+    const count = this.totalD * percent;
+    this.currD = count;
   }
 
   /**
@@ -78,17 +83,18 @@ export class BouncingImage implements CanvasObject {
       tickStateDelta.hitWall = universeDelta;
     }
 
+    const {x: canvasWidth, y: canvasHeight} = this.getCompensatedDimensions();
     const universeOffset = {
-      x: universe.x * this.canvasWidth,
-      y: universe.y * this.canvasHeight,
+      x: universe.x * canvasWidth,
+      y: universe.y * canvasHeight,
     };
     const delta = {
       x: this.currD - universeOffset.x,
       y: this.currD - universeOffset.y,
     };
     this.position = {
-      x: universe.x % 2 === 0 ? delta.x : this.canvasWidth - delta.x,
-      y: universe.y % 2 === 0 ? delta.y : this.canvasHeight - delta.y,
+      x: universe.x % 2 === 0 ? delta.x : canvasWidth - delta.x,
+      y: universe.y % 2 === 0 ? delta.y : canvasHeight - delta.y,
     };
 
     if (this.settings.getSetting('showTimeToCorner')) {
@@ -124,10 +130,18 @@ export class BouncingImage implements CanvasObject {
     return tickStateDelta;
   }
 
-  private getUniverse(d: number) {
+  private getCompensatedDimensions(): Coord {
     return {
-      x: Math.floor(d / this.canvasWidth),
-      y: Math.floor(d / this.canvasHeight),
+      x: this.canvasDimensions.x - this.imageData.width,
+      y: this.canvasDimensions.y - this.imageData.height,
+    };
+  }
+
+  private getUniverse(d: number) {
+    const {x, y} = this.getCompensatedDimensions();
+    return {
+      x: Math.floor(d / x),
+      y: Math.floor(d / y),
     };
   }
 
@@ -143,11 +157,16 @@ export class BouncingImage implements CanvasObject {
   }
 
   resize(canvas: HTMLCanvasElement) {
-    const heightDelta = canvas.height - this.imageData.height;
-    const widthDelta = canvas.width - this.imageData.width;
-    this.canvasWidth = widthDelta;
-    this.canvasHeight = heightDelta;
-    this.totalD = lcm(heightDelta, widthDelta);
+    this.canvasDimensions = {x: canvas.width, y: canvas.height};
+    const {x, y} = this.getCompensatedDimensions();
+    this.totalD = lcm(y, x);
+  }
+
+  async setImage(fileName: string) {
+    const writeableThis = this as Writeable<this>;
+    writeableThis.fileName = fileName;
+    const imageData = await loadImageData(fileName);
+    writeableThis.imageData = imageData;
   }
 
   static async fromFile(
@@ -156,7 +175,7 @@ export class BouncingImage implements CanvasObject {
       stats: Stats,
     ): Promise<BouncingImage> {
       const imageData = await loadImageData(fileName);
-      return new BouncingImage(imageData, settings, stats);
+      return new BouncingImage(fileName, imageData, settings, stats);
     }
 }
 
@@ -246,27 +265,45 @@ function hitDelta(tickState: TickStateDelta, cornerCoefficient = 2): number {
   return (tickState.hitCorner ?? 0 * cornerCoefficient) + (tickState.hitWall ?? 0);
 }
 
+
+const imageDataCache = new Map<string, ImageData>();
 async function loadImageData(fileName: string): Promise<ImageData> {
+  if (imageDataCache.has(fileName)) {
+    return imageDataCache.get(fileName)!;
+  }
   const img = new Image();
   img.crossOrigin = 'Anonymous';
+  console.log('loading', fileName);
   img.src = fileName;
-  return new Promise((resolve, reject) => {
-    try {
-      img.addEventListener('load', () => {
-        const canvas = document.createElement('canvas');
-        const width = img.naturalWidth;
-        const height = img.naturalHeight;
-        canvas.width = width;
-        canvas.height = height;
+  try {
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    const width = img.naturalWidth;
+    const height = img.naturalHeight;
+    canvas.width = width;
+    canvas.height = height;
 
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, width, height);
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(img, 0, 0, width, height);
 
-        const imageData = ctx.getImageData(0, 0, width, height);
-        resolve(imageData);
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
+    const imageData = ctx.getImageData(0, 0, width, height);
+    imageDataCache.set(fileName, imageData);
+    return imageData;
+  } catch (error) {
+    console.log('error loading image', fileName, error);
+    throw error;
+  }
+  // return new Promise((resolve, reject) => {
+  //   try {
+  //     img.addEventListener('load', () => {
+  //       resolve(imageData);
+  //     });
+  //     img.addEventListener('error', (...error) => {
+  //       console.log(error);
+  //       reject(error);
+  //     });
+  //   } catch (e) {
+  //     reject(e);
+  //   }
+  // });
 }

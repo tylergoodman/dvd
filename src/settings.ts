@@ -1,4 +1,4 @@
-import {ReplaySubject} from 'rxjs';
+import {Observable, ReplaySubject, filter, map, startWith} from 'rxjs';
 
 import {Inject} from './di';
 import {Stats, StatCategory} from './stats';
@@ -13,6 +13,7 @@ interface PersistentSettings {
 }
 
 export type ColorBehaviorKind = 'none'|'rainbow'|'classic';
+export type CustomBackgroundStyle = 'tile'|'center'|'fit'|'fill';
 
 interface WPESettings {
   showStats: boolean;
@@ -22,9 +23,13 @@ interface WPESettings {
   rainbowSpeed: number;
   noneColor: Color;
   speed: number;
+  imageFileName: string;
+  customBackground: string;
+  customBackgroundStyle: CustomBackgroundStyle;
+  objectsCount: number;
 }
 
-const DEFAULT_WPE_SETTINGS: WPESettings = {
+export const DEFAULT_WPE_SETTINGS: WPESettings = {
   showStats: false,
   showTimeToCorner: false,
   showDebugInfo: false,
@@ -32,6 +37,10 @@ const DEFAULT_WPE_SETTINGS: WPESettings = {
   rainbowSpeed: 0.05,
   noneColor: WHITE,
   speed: 0.25,
+  imageFileName: './dvd.svg',
+  customBackground: '',
+  customBackgroundStyle: 'tile',
+  objectsCount: 1,
 };
 
 const parseNumberFactory = (
@@ -49,6 +58,10 @@ const parseColor = (colorString: string|null): Color => {
   const [r, g, b] = colorString.split(' ').map(parseFloat);
   return [r * 255, g * 255, b * 255, 255];
 };
+const parseUrl = (urlString: string|null): string => {
+  if (!urlString) return '';
+  return decodeURIComponent(urlString);
+}
 
 // This happens here so we can listen as soon as possible. Idk if it matters.
 listenToWpeProperties(
@@ -59,6 +72,10 @@ listenToWpeProperties(
   ['rainbowSpeed', parseFloat],
   ['noneColor', parseColor],
   ['speed', parseFloat],
+  ['imageFileName', parseUrl],
+  ['customBackground', parseUrl],
+  'customBackgroundStyle',
+  ['objectsCount', parseInt],
 );
 
 const PERSISTENT_SETTINGS = [
@@ -112,6 +129,14 @@ export class Settings {
   
   getSetting<K extends keyof SettingsState>(key: K): SettingsState[K] {
     return this.settings[key];
+  }
+
+  listenToSetting<K extends keyof WPESettings>(key: K): Observable<WPESettings[K]> {
+    return settingsSync.pipe(
+        map(partialSettings => partialSettings[key]),
+        filter((setting: Partial<WPESettings>[K]): setting is WPESettings[K] =>
+            setting !== undefined),
+        startWith(this.settings[key]));
   }
 
   private initializeSettings(): SettingsState {

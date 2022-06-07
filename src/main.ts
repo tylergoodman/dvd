@@ -1,8 +1,11 @@
+import {combineLatest, defer, distinctUntilChanged, firstValueFrom, from, map, switchMap} from 'rxjs';
+
 import {BouncingImage} from './bouncing_image';
-import {Canvas, CANVAS_OBJECTS} from './canvas';
+import {Canvas, CanvasObject} from './canvas';
 import {Injector} from './di';
-import {Settings} from './settings';
+import {DEFAULT_WPE_SETTINGS, Settings} from './settings';
 import {Stats, STATS_ELEMENT} from './stats';
+import {nOf} from './util';
 
 
 const permLogEl = document.querySelector('#permLog')!;
@@ -11,6 +14,7 @@ function permLog(string: string) {
   child.innerText = string;
   permLogEl.appendChild(child);
 }
+(window as any).permLog = permLog;
 
 const injector = new Injector();
 
@@ -22,23 +26,45 @@ injector.register(
     provide: STATS_ELEMENT,
     useValue: document.querySelector('p')!,
   },
-  {
-    provide: CANVAS_OBJECTS,
-    useFactory: async (settings: Settings, stats: Stats) => {
-      const img = await BouncingImage.fromFile('./dvd.svg', settings, stats);
-      return [img];
-    },
-    deps: [Settings, Stats],
-  },
 );
 
-
-
-document.addEventListener('DOMContentLoaded', () => {
+async function main() {
   const canvas = injector.get(Canvas);
-  canvas.start();
+  const settings = injector.get(Settings);
+  const stats = injector.get(Stats);
 
-  window.addEventListener('resize', () => {
-    canvas.resize();
+  const images: BouncingImage[] = [];
+  settings.listenToSetting('imageFileName').subscribe(fileName => {
+    for (const image of images) {
+      image.setImage(fileName);
+    }
   });
-});
+  settings.listenToSetting('objectsCount')
+    .pipe(
+      distinctUntilChanged(),
+      switchMap(objectsCount => {
+        const imageFileName = settings.getSetting('imageFileName')
+            || DEFAULT_WPE_SETTINGS.imageFileName;
+        const images = nOf(objectsCount, () => BouncingImage.fromFile(
+            imageFileName, settings, stats));
+        return firstValueFrom(defer(() => Promise.all(images)));
+      }))
+  .subscribe(img => {
+    images.length = 0;
+    images.push(...img);
+    canvas.removeAllObjects();
+    canvas.addObject(
+      stats,
+      ...images,
+    );
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      image.tickPercent(i / images.length);
+    }
+  });
+
+  canvas.addObject(stats);
+  canvas.start();
+}
+
+document.addEventListener('DOMContentLoaded', main);

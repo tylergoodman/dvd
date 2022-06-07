@@ -11,8 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "rm": "rm -r $npm_package_config_wpeProjectLocation",
-    "copy": "cp -r ./dist $npm_package_config_wpeProjectLocation",
-    "bc": "npm run build && npm run rm && npm run copy"
+    "cp": "cp -r ./dist $npm_package_config_wpeProjectLocation",
+    "bc": "npm run build && npm run rm && npm run cp"
   },
   "repository": {
     "type": "git",

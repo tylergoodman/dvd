@@ -1,6 +1,11 @@
 import {Color} from './types';
 
+export function nOf<T>(n: number, create: (n: number) => T): T[] {
+  return Array.from({length: n}).map((_, i) => create(n));
+}
+
 export const WHITE: Color = [255, 255, 255, 255];
+export function isNever(n: never): void {}
 
 export function flattenMapValues<V>(map: Map<unknown, V>): FlatArray<V[], 1>[] {
   const valuesAsArray = Array.from(map.values());
@@ -79,7 +84,7 @@ export function objectEquals<T extends {[i: string]: unknown}>(a: T, b: T) {
 export function clamp(num: number, min: number, max: number): number {
   return Math.min(Math.max(num, min), max);
 }
-export function memoize<F extends (...args: unknown[]) => unknown>(fn: F): F {
+export function memoize<F extends (...args: any[]) => any>(fn: F): F {
   let lastArgs: Parameters<F>;
   let lastValue: ReturnType<F>;
   const memoized = ((...args: Parameters<F>) => {

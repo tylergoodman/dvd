@@ -1,9 +1,10 @@
+import {CanvasObject} from './canvas';
 import {Inject, InjectionToken} from './di';
 
 export const STATS_ELEMENT = new InjectionToken<HTMLElement>('StatsElement');
 
 /** Controls the statistical information displayed on screen. */
-export class Stats {
+export class Stats implements CanvasObject {
   
   private readonly statCategories = new Map<StatCategory, readonly string[]>();
   private readonly stats = new Map<string, Stat>();
@@ -67,7 +68,7 @@ export class Stats {
     }
   }
 
-  render(): void {
+  draw(): void {
     if (!this.hasChanged) {
       return;
     }

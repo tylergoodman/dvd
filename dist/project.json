@@ -1,9 +1,104 @@
 {
+	"contentrating" : "Everyone",
+	"description" : "Another bouncing DVD implementation that should be more optimized and be easier on your computer.",
 	"file" : "deeveedee.html",
 	"general" : 
 	{
 		"properties" : 
 		{
+			"colorbehavior" : 
+			{
+				"index" : 3,
+				"options" : 
+				[
+					{
+						"label" : "None",
+						"value" : "none"
+					},
+					{
+						"label" : "Rainbow",
+						"value" : "rainbow"
+					},
+					{
+						"label" : "Classic",
+						"value" : "classic"
+					}
+				],
+				"order" : 103,
+				"text" : "Color behavior",
+				"type" : "combo",
+				"value" : "rainbow"
+			},
+			"custombackground" : 
+			{
+				"index" : 8,
+				"order" : 108,
+				"text" : "Background image",
+				"type" : "file",
+				"value" : ""
+			},
+			"custombackgroundstyle" : 
+			{
+				"condition" : "custombackground.value !== ''",
+				"index" : 9,
+				"options" : 
+				[
+					{
+						"label" : "Tile",
+						"value" : "tile"
+					},
+					{
+						"label" : "Center",
+						"value" : "center"
+					},
+					{
+						"label" : "Fit",
+						"value" : "fit"
+					},
+					{
+						"label" : "Fill",
+						"value" : "fill"
+					}
+				],
+				"order" : 109,
+				"text" : "Background style",
+				"type" : "combo",
+				"value" : "tile"
+			},
+			"imagefilename" : 
+			{
+				"index" : 7,
+				"order" : 107,
+				"text" : "Image",
+				"type" : "file",
+				"value" : ""
+			},
+			"nonecolor" : 
+			{
+				"condition" : "colorbehavior.value === 'none'",
+				"index" : 5,
+				"order" : 105,
+				"text" : "Color",
+				"type" : "color",
+				"value" : "1 1 1"
+			},
+			"objectscount" : 
+			{
+				"index" : 10,
+				"order" : 110,
+				"text" : "Objects",
+				"type" : "textinput",
+				"value" : "1"
+			},
+			"rainbowspeed" : 
+			{
+				"condition" : "colorbehavior.value === 'rainbow'",
+				"index" : 4,
+				"order" : 104,
+				"text" : "Color speed",
+				"type" : "textinput",
+				"value" : "0.05"
+			},
 			"schemecolor" : 
 			{
 				"order" : 0,
@@ -35,48 +130,7 @@
 				"type" : "bool",
 				"value" : false
 			},
-			"colorbehavior" :
-			{
-				"index" : 3,
-				"order" : 103,
-				"text" : "Color behavior",
-				"type" : "combo",
-				"options" :
-				[
-					{
-						"label" : "None",
-						"value" : "none"
-					},
-					{
-						"label" : "Rainbow",
-						"value" : "rainbow"
-					},
-					{
-						"label" : "Classic",
-						"value" : "classic"
-					}
-				],
-				"value" : "rainbow"
-			},
-			"rainbowspeed" :
-			{
-				"condition" : "colorbehavior.value === 'rainbow'",
-				"index" : 4,
-				"order" : 104,
-				"text" : "Color speed",
-				"type" : "textinput",
-				"value" : "0.05"
-			},
-			"nonecolor" :
-			{
-				"condition" : "colorbehavior.value === 'none'",
-				"index" : 5,
-				"order" : 105,
-				"text" : "Color",
-				"type" : "color",
-				"value" : "1 1 1"
-			},
-			"speed" :
+			"speed" : 
 			{
 				"index" : 6,
 				"order" : 106,
@@ -87,7 +141,10 @@
 		}
 	},
 	"preview" : "preview.gif",
+	"tags" : [ "Retro" ],
 	"title" : "DVD Screensaver (optimized)",
 	"type" : "web",
-	"version" : 0
+	"version" : 1,
+	"workshopid" : "2817959916",
+	"workshopurl" : "steam://url/CommunityFilePage/2817959916"
 }
